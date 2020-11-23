@@ -17,9 +17,12 @@ Klipper is Free Software. See the [license](COPYING) or read the
 
 ## Modifications
 
-The scope of modifications is limited to adding support for DGUS
-touchscreens. This feature is only available for AVR/LPC176X
-micro-controllers and it needs to be configured before compilation.
+The scope of modifications is limited to adding support for DWIN T5UID1
+touchscreens (except for the addition of a `--warn` CLI option, which sets the
+logging level to WARNING).
+
+The touchscreen feature is only available for AVR/LPC176X micro-controllers and
+it needs to be configured before compilation.
 
 The touchscreen firmware compatible with this fork is available in
 [this repository](https://github.com/Desuuuu/DGUS-reloaded-Klipper).
