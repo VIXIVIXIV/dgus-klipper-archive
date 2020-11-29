@@ -21,12 +21,12 @@ controls = {
 
 constants = {
     'temp_pla': {
-        'hotend': 200,
-        'bed': 60
+        'hotend': 190,
+        'bed': 70
     },
     'temp_abs': {
-        'hotend': 240,
-        'bed': 80
+        'hotend': 255,
+        'bed': 100
     },
     'temp_petg': {
         'hotend': 240,
