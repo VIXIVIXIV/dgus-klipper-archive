@@ -6,7 +6,9 @@ to cut-and-paste them into a printer config file. See the
 [installation document](Installation.md) for information on setting up
 Klipper and choosing an initial config file.
 
-# Format of micro-controller pin names
+# Micro-controller configuration
+
+## Format of micro-controller pin names
 
 Many config options require the name of a micro-controller pin.
 Klipper uses the hardware names for these pins - for example `PA4`.
@@ -27,6 +29,49 @@ preceded by `~`.
 Note, some config sections may "create" additional pins. Where this
 occurs, the config section defining the pins must be listed in the
 config file before any sections using those pins.
+
+## [mcu]
+
+Configuration of the primary micro-controller.
+
+```
+[mcu]
+serial:
+#   The serial port to connect to the MCU. If unsure (or if it
+#   changes) see the "Where's my serial port?" section of the FAQ.
+#   This parameter must be provided.
+#baud: 250000
+#   The baud rate to use. The default is 250000.
+#pin_map:
+#   This option may be used to enable Arduino pin name aliases. The
+#   default is to not enable the aliases.
+#restart_method:
+#   This controls the mechanism the host will use to reset the
+#   micro-controller. The choices are 'arduino', 'cheetah', 'rpi_usb',
+#   and 'command'. The 'arduino' method (toggle DTR) is common on
+#   Arduino boards and clones. The 'cheetah' method is a special
+#   method needed for some Fysetc Cheetah boards. The 'rpi_usb' method
+#   is useful on Raspberry Pi boards with micro-controllers powered
+#   over USB - it briefly disables power to all USB ports to
+#   accomplish a micro-controller reset. The 'command' method involves
+#   sending a Klipper command to the micro-controller so that it can
+#   reset itself. The default is 'arduino' if the micro-controller
+#   communicates over a serial port, 'command' otherwise.
+```
+
+## [mcu my_extra_mcu]
+
+Additional micro-controllers (one may define any number of sections
+with an "mcu" prefix). Additional micro-controllers introduce
+additional pins that may be configured as heaters, steppers, fans,
+etc.. For example, if an "[mcu extra_mcu]" section is introduced, then
+pins such as "extra_mcu:ar9" may then be used elsewhere in the config
+(where "ar9" is a hardware pin name or alias name on the given mcu).
+
+```
+[mcu my_extra_mcu]
+# See the "mcu" section for configuration parameters.
+```
 
 # Common kinematic settings
 
@@ -482,37 +527,6 @@ max_accel: 1
 #   values are not used for "none" kinematics.
 ```
 
-# Primary micro-controller support
-
-## [mcu]
-
-Configuration of the primary micro-controller.
-
-```
-[mcu]
-serial:
-#   The serial port to connect to the MCU. If unsure (or if it
-#   changes) see the "Where's my serial port?" section of the FAQ.
-#   This parameter must be provided.
-#baud: 250000
-#   The baud rate to use. The default is 250000.
-#pin_map:
-#   This option may be used to enable Arduino pin name aliases. The
-#   default is to not enable the aliases.
-#restart_method:
-#   This controls the mechanism the host will use to reset the
-#   micro-controller. The choices are 'arduino', 'cheetah', 'rpi_usb',
-#   and 'command'. The 'arduino' method (toggle DTR) is common on
-#   Arduino boards and clones. The 'cheetah' method is a special
-#   method needed for some Fysetc Cheetah boards. The 'rpi_usb' method
-#   is useful on Raspberry Pi boards with micro-controllers powered
-#   over USB - it briefly disables power to all USB ports to
-#   accomplish a micro-controller reset. The 'command' method involves
-#   sending a Klipper command to the micro-controller so that it can
-#   reset itself. The default is 'arduino' if the micro-controller
-#   communicates over a serial port, 'command' otherwise.
-```
-
 # Common extruder and heated bed support
 
 ## [extruder]
@@ -586,9 +600,8 @@ sensor_type:
 #   Type of sensor - common thermistors are "EPCOS 100K B57560G104F",
 #   "ATC Semitec 104GT-2", "NTC 100K beta 3950", "Honeywell 100K
 #   135-104LAG-J01", "NTC 100K MGB18-104F39050L32", "SliceEngineering
-#   450", and "TDK NTCG104LH104JT1". See the "Heaters and temperature
-#   sensors" section for other sensors. This parameter must be
-#   provided.
+#   450", and "TDK NTCG104LH104JT1". See the "Temperature sensors"
+#   section for other sensors. This parameter must be provided.
 sensor_pin:
 #   Analog input pin connected to the sensor. This parameter must be
 #   provided.
@@ -596,11 +609,6 @@ sensor_pin:
 #   The resistance (in ohms) of the pullup attached to the thermistor.
 #   This parameter is only valid when the sensor is a thermistor. The
 #   default is 4700 ohms.
-#inline_resistor: 0
-#   The resistance (in ohms) of an extra (not heat varying) resistor
-#   that is placed inline with the thermistor. It is rare to set this.
-#   This parameter is only valid when the sensor is a thermistor. The
-#   default is 0 ohms.
 #smooth_time: 2.0
 #   A time value (in seconds) over which temperature measurements will
 #   be smoothed to reduce the impact of measurement noise. The default
@@ -1357,8 +1365,7 @@ an explicit name (eg, [adxl345 my_chip_name]).
 ```
 [adxl345]
 cs_pin:
-#   The SPI enable pin for the sensor. This parameter must be
-#   provided.
+#   The SPI enable pin for the sensor. This parameter must be provided.
 #spi_speed: 5000000
 #   The SPI speed (in hz) to use when communicating with the chip.
 #   The default is 5000000.
@@ -1366,8 +1373,8 @@ cs_pin:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
 #axes_map: x,y,z
 #   The accelerometer axis for each of the printer's x, y, and z axes.
 #   This may be useful if the accelerometer is mounted in an
@@ -1590,22 +1597,6 @@ control_pin:
 #   See the "probe" section for information on these parameters.
 ```
 
-# Additional micro-controllers
-
-## [mcu my_extra_mcu]
-
-Additional micro-controllers (one may define any number of sections
-with an "mcu" prefix). Additional micro-controllers introduce
-additional pins that may be configured as heaters, steppers, fans,
-etc.. For example, if an "[mcu extra_mcu]" section is introduced, then
-pins such as "extra_mcu:ar9" may then be used elsewhere in the config
-(where "ar9" is a hardware pin name or alias name on the given mcu).
-
-```
-[mcu my_extra_mcu]
-# See the "mcu" section for configuration parameters.
-```
-
 # Additional stepper motors and extruders
 
 ## [stepper_z1]
@@ -1740,7 +1731,7 @@ normal printer kinematics.
 #   MANUAL_STEPPER movement commands.
 ```
 
-# Heaters and temperature sensors
+# Custom heaters and sensors
 
 ## [verify_heater]
 
@@ -1795,84 +1786,6 @@ Tool to disable heaters when homing or probing an axis.
 #   A comma separated list of heaters to disable during homing/probing
 #   moves. The default is to disable all heaters.
 #   Typical example: extruder, heater_bed
-```
-
-## MAXxxxxx temperature sensors
-
-MAXxxxxx serial peripheral interface (SPI) temperature based
-sensors. The following parameters are available in heater sections
-that use one of these sensor types.
-
-```
-#[extruder]
-# See the "extruder" section for a description of heater parameters.
-# The parameters below describe sensor parameters.
-#sensor_type:
-#   One of "MAX6675", "MAX31855", "MAX31856", or "MAX31865".
-#spi_speed: 4000000
-#   The SPI speed (in hz) to use when communicating with the chip.
-#   The default is 4000000.
-#spi_bus:
-#spi_software_sclk_pin:
-#spi_software_mosi_pin:
-#spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
-#sensor_pin:
-#   The chip select line for the sensor chip. This parameter must be
-#   provided.
-#tc_type: K
-#tc_use_50Hz_filter: False
-#tc_averaging_count: 1
-#   The above parameters control the sensor parameters of MAX31856
-#   chips. The defaults for each parameter are next to the parameter
-#   name in the above list.
-#rtd_nominal_r: 100
-#rtd_reference_r: 430
-#rtd_num_of_wires: 2
-#rtd_use_50Hz_filter: False
-#   The above parameters control the sensor parameters of MAX31865
-#   chips. The defaults for each parameter are next to the parameter
-#   name in the above list.
-```
-
-## Common temperature amplifiers
-
-Common temperature amplifiers. The following parameters are available
-in heater sections that use one of these sensors.
-
-```
-#[extruder]
-# See the "extruder" section for a description of heater parameters.
-# The parameters below describe sensor parameters.
-#sensor_type:
-#   One of "PT100 INA826", "AD595", "AD597", "AD8494", "AD8495",
-#   "AD8496", or "AD8497".
-#sensor_pin:
-#   Analog input pin connected to the sensor. This parameter must be
-#   provided.
-#adc_voltage: 5.0
-#   The ADC comparison voltage (in Volts). The default is 5 volts.
-#voltage_offset: 0
-#   The ADC voltage offset (in Volts). The default is 0.
-```
-
-## Directly connected PT1000 sensor
-
-Directly connected PT1000 sensor. The following parameters are
-available in heater sections that use one of these sensors.
-
-```
-#[extruder]
-# See the "extruder" section for a description of heater parameters.
-# The parameters below describe sensor parameters.
-#sensor_type: PT1000
-#sensor_pin:
-#   Analog input pin connected to the sensor. This parameter must be
-#   provided.
-#pullup_resistor: 4700
-#   The resistance (in ohms) of the pullup attached to the sensor. The
-#   default is 4700 ohms.
 ```
 
 ## [thermistor]
@@ -1943,124 +1856,6 @@ section.
 #   least two measurements must be provided.
 ```
 
-## bme280 temperature sensor
-
-BME280 two wire interface (I2C) environmental sensor. Note that this
-sensor is not intended for use with extruders and heater beds, but
-rather for monitoring ambient temperature (C), pressure (hPa), and
-relative humidity. See
-[sample-macros.cfg](../config/sample-macros.cfg) for a gcode_macro
-that may be used to report pressure and humidity in addition to
-temperature.
-
-```
-#[temperature_sensor my_sensor]
-# See the "temperature_sensor" section for a description of its
-# parameters. The parameters below describe BME280 sensor parameters.
-#sensor_type:
-#   Must be "BME280"
-#i2c_address:
-#   Default is 118 (0x76). Some BME280 sensors have an address of 119
-#   (0x77).
-#i2c_mcu:
-#   MCU the sensor is connected to. Default is the primary mcu.
-#i2c_bus:
-#   The I2C bus the sensor is connected to. On some MCU platforms the
-#   default is bus 0. On platforms without bus 0 this parameter is
-#   required.
-#i2c_speed:
-#   The I2C speed (in Hz) to use when communicating with the sensor.
-#   Default is 100000. On some MCUs changing this value has no effect.
-```
-
-## HTU21D sensor
-
-HTU21D family two wire interface (I2C) environmental sensor. Note that
-this sensor is not intended for use with extruders and heater beds,
-but rather for monitoring ambient temperature (C) and relative
-humidity. See [sample-macros.cfg](../config/sample-macros.cfg) for a
-gcode_macro that may be used to report humidity in addition to
-temperature.
-
-```
-#[temperature_sensor my_sensor]
-# See the "temperature_sensor" section for a description of its
-# parameters. The parameters below describe HTU21D family sensor
-# parameters.
-#sensor_type:
-#   Must be "HTU21D" , "SI7013", "SI7020", "SI7021" or "SHT21"
-#i2c_address:
-#   Default is 64 (0x40).
-#i2c_mcu:
-#   MCU the sensor is connected to. Default is the primary mcu.
-#i2c_bus:
-#   The I2C bus the sensor is connected to. On some MCU platforms the
-#   default is bus 0. On platforms without bus 0 this parameter is
-#   required.
-#i2c_speed:
-#   The I2C speed (in Hz) to use when communicating with the sensor.
-#   Default is 100000. On some MCUs changing this value has no effect.
-#htu21d_hold_master:
-#   If the sensor can hold the I2C buf while reading. If True no other
-#   bus communication can be performed while reading is in progress.
-#   Default is False.
-#htu21d_resolution:
-#   The resolution of temperature and humidity reading.
-#   Valid values are:
-#    'TEMP14_HUM12' -> 14bit for Temp and 12bit for humidity
-#    'TEMP13_HUM10' -> 13bit for Temp and 10bit for humidity
-#    'TEMP12_HUM08' -> 12bit for Temp and 08bit for humidity
-#    'TEMP11_HUM11' -> 11bit for Temp and 11bit for humidity
-#   Default is: "TEMP11_HUM11"
-#htu21d_report_time:
-#   Interval in seconds between readings. Default is 30
-```
-
-## LM75 temperature sensor
-
-LM75/LM75A two wire (I2C) connected temperature sensors. These sensors
-have range up to 125 C, so are usable for e.g. chamber temperature
-monitoring. They can also function as simple fan/heater controllers
-but this mode is not used here.
-
-```
-#[temperature_sensor my_sensor]
-# See the "temperature_sensor" section for a description of its
-# parameters. The parameters below describe LM75 family sensor
-# parameters.
-#sensor_type:
-#   Must be "LM75".
-#i2c_address:
-#   Default is 72 (0x48). Normal range is 72-79 (0x48-0x4F) and the 3
-#   low bits of the address are configured via pins on the chip
-#   (usually with jumpers or hard wired).
-#i2c_mcu:
-#   MCU the sensor is connected to. Default is the primary mcu.
-#i2c_bus:
-#   The I2C bus the sensor is connected to. On some MCU platforms the
-#   default is bus 0. On platforms without bus 0 this parameter is
-#   required.
-#i2c_speed:
-#   The I2C speed (in Hz) to use when communicating with the sensor.
-#   Default is 100000. On some MCUs changing this value has no effect.
-#lm75_report_time:
-#   Interval in seconds between readings. Default is 0.8, with minimum
-#   0.5.
-```
-
-## RPi temperature sensor
-
-CPU temperature from  Raspberry Pi.
-
-```
-#[temperature_sensor my_sensor]
-# See the "temperature_sensor" section for a description of its
-# parameters. The parameters below describe the Raspberry Pi sensor
-# parameters.
-#sensor_type:
-#   Must be "rpi_temperature".
-```
-
 ## [heater_generic]
 
 Generic heaters (one may define any number of sections with a
@@ -2107,6 +1902,226 @@ temperature sensors that are reported via the M105 command.
 #gcode_id:
 #   See the "heater_generic" section for the definition of this
 #   parameter.
+```
+
+# Temperature sensors
+
+Klipper includes definitions for many types of temperature sensors.
+These sensors may be used in any config section that requires a
+temperature sensor (such as an `[extruder]` or `[heated_bed]`
+section).
+
+## Common thermistors
+
+Common thermistors. The following parameters are available in heater
+sections that use one of these sensors.
+
+```
+sensor_type:
+#   One of "EPCOS 100K B57560G104F", "ATC Semitec 104GT-2",
+#   "NTC 100K beta 3950", "Honeywell 100K 135-104LAG-J01",
+#   "NTC 100K MGB18-104F39050L32", "SliceEngineering 450", or
+#   "TDK NTCG104LH104JT1"
+sensor_pin:
+#   Analog input pin connected to the thermistor. This parameter must
+#   be provided.
+#pullup_resistor: 4700
+#   The resistance (in ohms) of the pullup attached to the thermistor.
+#   The default is 4700 ohms.
+#inline_resistor: 0
+#   The resistance (in ohms) of an extra (not heat varying) resistor
+#   that is placed inline with the thermistor. It is rare to set this.
+#   The default is 0 ohms.
+```
+
+## Common temperature amplifiers
+
+Common temperature amplifiers. The following parameters are available
+in heater sections that use one of these sensors.
+
+```
+sensor_type:
+#   One of "PT100 INA826", "AD595", "AD597", "AD8494", "AD8495",
+#   "AD8496", or "AD8497".
+sensor_pin:
+#   Analog input pin connected to the sensor. This parameter must be
+#   provided.
+#adc_voltage: 5.0
+#   The ADC comparison voltage (in Volts). The default is 5 volts.
+#voltage_offset: 0
+#   The ADC voltage offset (in Volts). The default is 0.
+```
+
+## Directly connected PT1000 sensor
+
+Directly connected PT1000 sensor. The following parameters are
+available in heater sections that use one of these sensors.
+
+```
+sensor_type: PT1000
+sensor_pin:
+#   Analog input pin connected to the sensor. This parameter must be
+#   provided.
+#pullup_resistor: 4700
+#   The resistance (in ohms) of the pullup attached to the sensor. The
+#   default is 4700 ohms.
+```
+
+## MAXxxxxx temperature sensors
+
+MAXxxxxx serial peripheral interface (SPI) temperature based
+sensors. The following parameters are available in heater sections
+that use one of these sensor types.
+
+```
+sensor_type:
+#   One of "MAX6675", "MAX31855", "MAX31856", or "MAX31865".
+sensor_pin:
+#   The chip select line for the sensor chip. This parameter must be
+#   provided.
+#spi_speed: 4000000
+#   The SPI speed (in hz) to use when communicating with the chip.
+#   The default is 4000000.
+#spi_bus:
+#spi_software_sclk_pin:
+#spi_software_mosi_pin:
+#spi_software_miso_pin:
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
+#tc_type: K
+#tc_use_50Hz_filter: False
+#tc_averaging_count: 1
+#   The above parameters control the sensor parameters of MAX31856
+#   chips. The defaults for each parameter are next to the parameter
+#   name in the above list.
+#rtd_nominal_r: 100
+#rtd_reference_r: 430
+#rtd_num_of_wires: 2
+#rtd_use_50Hz_filter: False
+#   The above parameters control the sensor parameters of MAX31865
+#   chips. The defaults for each parameter are next to the parameter
+#   name in the above list.
+```
+
+## bme280 temperature sensor
+
+BME280 two wire interface (I2C) environmental sensor. Note that this
+sensor is not intended for use with extruders and heater beds, but
+rather for monitoring ambient temperature (C), pressure (hPa), and
+relative humidity. See
+[sample-macros.cfg](../config/sample-macros.cfg) for a gcode_macro
+that may be used to report pressure and humidity in addition to
+temperature.
+
+```
+sensor_type: bme280
+#i2c_address:
+#   Default is 118 (0x76). Some BME280 sensors have an address of 119
+#   (0x77).
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
+```
+
+## HTU21D sensor
+
+HTU21D family two wire interface (I2C) environmental sensor. Note that
+this sensor is not intended for use with extruders and heater beds,
+but rather for monitoring ambient temperature (C) and relative
+humidity. See [sample-macros.cfg](../config/sample-macros.cfg) for a
+gcode_macro that may be used to report humidity in addition to
+temperature.
+
+```
+sensor_type:
+#   Must be "HTU21D" , "SI7013", "SI7020", "SI7021" or "SHT21"
+#i2c_address:
+#   Default is 64 (0x40).
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
+#htu21d_hold_master:
+#   If the sensor can hold the I2C buf while reading. If True no other
+#   bus communication can be performed while reading is in progress.
+#   Default is False.
+#htu21d_resolution:
+#   The resolution of temperature and humidity reading.
+#   Valid values are:
+#    'TEMP14_HUM12' -> 14bit for Temp and 12bit for humidity
+#    'TEMP13_HUM10' -> 13bit for Temp and 10bit for humidity
+#    'TEMP12_HUM08' -> 12bit for Temp and 08bit for humidity
+#    'TEMP11_HUM11' -> 11bit for Temp and 11bit for humidity
+#   Default is: "TEMP11_HUM11"
+#htu21d_report_time:
+#   Interval in seconds between readings. Default is 30
+```
+
+## LM75 temperature sensor
+
+LM75/LM75A two wire (I2C) connected temperature sensors. These sensors
+have range up to 125 C, so are usable for e.g. chamber temperature
+monitoring. They can also function as simple fan/heater controllers.
+
+```
+sensor_type: lm75
+#i2c_address:
+#   Default is 72 (0x48). Normal range is 72-79 (0x48-0x4F) and the 3
+#   low bits of the address are configured via pins on the chip
+#   (usually with jumpers or hard wired).
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
+#lm75_report_time:
+#   Interval in seconds between readings. Default is 0.8, with minimum
+#   0.5.
+```
+
+## Builtin micro-controller temperature sensor
+
+The atsam, atsamd, and stm32 micro-controllers contain an internal
+temperature sensor. One can use the "temperature_mcu" sensor to
+monitor these temperatures.
+
+```
+sensor_type: temperature_mcu
+#sensor_mcu: mcu
+#   The micro-controller to read from. The default is "mcu".
+#sensor_temperature1:
+#sensor_adc1:
+#   Specify the above two parameters (a temperature in Celsius and an
+#   ADC value as a float between 0.0 and 1.0) to calibrate the
+#   micro-controller temperature. This may improve the reported
+#   temperature accuracy on some chips. A typical way to obtain this
+#   calibration information is to completely remove power from the
+#   printer for a few hours (to ensure it is at the ambient
+#   temperature), then power it up and use the QUERY_ADC command to
+#   obtain an ADC measurement. Use some other temperature sensor on
+#   the printer to find the corresponding ambient temperature. The
+#   default is to use the factory calibration data on the
+#   micro-controller (if applicable) or the nominal values from the
+#   micro-controller specification.
+#sensor_temperature2:
+#sensor_adc2:
+#   If sensor_temperature1/sensor_adc1 is specified then one may also
+#   specify sensor_temperature2/sensor_adc2 calibration data. Doing so
+#   may provide calibrated "temperature slope" information. The
+#   default is to use the factory calibration data on the
+#   micro-controller (if applicable) or the nominal values from the
+#   micro-controller specification.
+```
+
+## RPi temperature sensor
+
+CPU temperature from the Raspberry Pi running the host software.
+
+```
+sensor_type: rpi_temperature
 ```
 
 # Fans
@@ -2508,13 +2523,13 @@ cs_pin:
 #   The pin corresponding to the TMC2130 chip select line. This pin
 #   will be set to low at the start of SPI messages and raised to high
 #   after the message completes. This parameter must be provided.
-#spi_bus:
 #spi_speed:
+#spi_bus:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
 microsteps:
 #   The number of microsteps to configure the driver to use. Valid
 #   values are 1, 2, 4, 8, 16, 32, 64, 128, 256. This parameter must
@@ -2690,19 +2705,15 @@ cs_pin:
 #   will be set to low at the start of SPI messages and set to high
 #   after the message transfer completes. This parameter must be
 #   provided.
-#spi_bus:
-#   Select the SPI bus the TMC2660 stepper driver is connected to.
-#   This depends on the physical connections on your board, as well as
-#   the SPI implementation of your particular micro-controller. The
-#   default is to use the default micro-controller spi bus.
 #spi_speed: 4000000
 #   SPI bus frequency used to communicate with the TMC2660 stepper
 #   driver. The default is 4000000.
+#spi_bus:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
 microsteps:
 #   The number of microsteps to configure the driver to use. Valid
 #   values are 1, 2, 4, 8, 16, 32, 64, 128, 256. This parameter must
@@ -2767,13 +2778,13 @@ cs_pin:
 #   The pin corresponding to the TMC5160 chip select line. This pin
 #   will be set to low at the start of SPI messages and raised to high
 #   after the message completes. This parameter must be provided.
-#spi_bus:
 #spi_speed:
+#spi_bus:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
 microsteps:
 #   The number of microsteps to configure the driver to use. Valid
 #   values are 1, 2, 4, 8, 16, 32, 64, 128, 256. This parameter must
@@ -2854,13 +2865,13 @@ enable_pin:
 #   The pin corresponding to the AD5206 chip select line. This pin
 #   will be set to low at the start of SPI messages and raised to high
 #   after the message completes. This parameter must be provided.
-#spi_bus:
 #spi_speed:
+#spi_bus:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
-#   These optional parameters allow one to customize the SPI settings
-#   used to communicate with the chip.
+#   See the "common SPI settings" section for a description of the
+#   above parameters.
 #channel_1:
 #channel_2:
 #channel_3:
@@ -2896,6 +2907,11 @@ define any number of sections with an "mcp4451" prefix).
 i2c_address:
 #   The i2c address that the chip is using on the i2c bus. This
 #   parameter must be provided.
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
 #wiper_0:
 #wiper_1:
 #wiper_2:
@@ -2924,12 +2940,14 @@ prefix).
 
 ```
 [mcp4728 my_dac]
-#i2c_mcu: mcu
-#   The name of the micro-controller that the MCP4451 chip is
-#   connected to. The default is "mcu".
 #i2c_address: 96
 #   The i2c address that the chip is using on the i2c bus. The default
 #   is 96.
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
 #channel_a:
 #channel_b:
 #channel_c:
@@ -3035,15 +3053,15 @@ lcd_type:
 #   The default is False.
 #cs_pin:
 #dc_pin:
-#spi_bus:
 #spi_speed:
+#spi_bus:
 #spi_software_sclk_pin:
 #spi_software_mosi_pin:
 #spi_software_miso_pin:
 #   The pins connected to an ssd1306 type lcd when in "4-wire" spi
-#   mode. The parameters that start with "spi_" are optional and they
-#   control the spi settings used to communicate with the chip. The
-#   default is to use i2c mode for ssd1306 displays.
+#   mode. See the "common SPI settings" section for a description of
+#   the parameters that start with "spi_". The default is to use i2c
+#   mode for ssd1306 displays.
 #reset_pin:
 #   A reset pin may be specified on ssd1306 displays. If it is not
 #   specified then the hardware must have a pull-up on the
@@ -3440,9 +3458,11 @@ i2c_address:
 #   I2C address used by this expander. Depending on the hardware
 #   jumpers this is one out of the following addresses: 62 63 112
 #   113. This parameter must be provided.
-#i2c_mcu: mcu
-#   The name of the micro-controller that the SX1509 chip is connected
-#   to. The default is "mcu".
+#i2c_mcu:
+#i2c_bus:
+#i2c_speed:
+#   See the "common I2C settings" section for a description of the
+#   above parameters.
 #i2c_bus:
 #   If the I2C implementation of your micro-controller supports
 #   multiple I2C busses, you may specify the bus name here. The
@@ -3563,4 +3583,50 @@ host_mcu:
 #stepper_h_chopper_blank_time_high:
 #   This parameter controls the CFG5 pin of the stepper motor driver
 #   (True sets CFG5 high, False sets it low). The default is True.
+```
+
+# Common bus parameters
+
+## Common SPI settings
+
+The following parameters are generally available for devices using an
+SPI bus.
+
+```
+#spi_speed:
+#   The SPI speed (in hz) to use when communicating with the device.
+#   The default depends on the type of device.
+#spi_bus:
+#   If the micro-controller supports multiple SPI busses then one may
+#   specify the micro-controller bus name here. The default depends on
+#   the type of micro-controller.
+#spi_software_sclk_pin:
+#spi_software_mosi_pin:
+#spi_software_miso_pin:
+#   Specify the above parameters to use "software based SPI". This
+#   mode does not require micro-controller hardware support (typically
+#   any general purpose pins may be used). The default is to not use
+#   "software spi".
+```
+
+## Common I2C settings
+
+The following parameters are generally available for devices using an
+I2C bus.
+
+```
+#i2c_address:
+#   The i2c address of the device. This must specified as a decimal
+#   number (not in hex). The default depends on the type of device.
+#i2c_mcu:
+#   The name of the micro-controller that the chip is connected to.
+#   The default is "mcu".
+#i2c_bus:
+#   If the micro-controller supports multiple I2C busses then one may
+#   specify the micro-controller bus name here. The default depends on
+#   the type of micro-controller.
+#i2c_speed:
+#   The I2C speed (in Hz) to use when communicating with the device.
+#   On some micro-controllers changing this value has no effect. The
+#   default is 100000.
 ```
