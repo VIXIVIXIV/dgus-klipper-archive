@@ -21,7 +21,7 @@ jobs:
               repo: context.repo.repo,
               title: "Upstream sync",
               head: "KevinOConnor:master",
-              base: "snapshot",
+              base: "master",
               maintainer_can_modify: false
             })
 
