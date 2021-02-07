@@ -12,7 +12,7 @@ jobs:
       - name: Merge changes
         uses: actions/github-script@v3
         with:
-          github-token: ${{ secrets.TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
@@ -39,7 +39,7 @@ jobs:
       - name: Checkout snapshot
         uses: actions/checkout@v2
         with:
-          token: ${{ secrets.TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
           ref: snapshot
       - name: Generate tag parameters
         id: params
@@ -49,7 +49,7 @@ jobs:
       - name: Create tag
         uses: actions/github-script@v3
         with:
-          github-token: ${{ secrets.TOKEN }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const timeout = (ms) => new Promise(resolve => setTimeout(resolve, ms))
 
