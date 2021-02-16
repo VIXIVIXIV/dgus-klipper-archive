@@ -17,9 +17,13 @@ Klipper is Free Software. See the [license](COPYING) or read the
 
 ## Modifications
 
-The scope of modifications is limited to adding support for DWIN T5UID1
+The scope of modifications is (mostly) limited to adding support for DWIN T5UID1
 touchscreens (except for the addition of a `--warn` CLI option, which sets the
 logging level to WARNING).
+
+This is my personal fork, which I have synced to the master Kevin O'Conner fork 
+daily, as well as manually when I feel like it. There's also an extra experimental 
+term for PT100 RTD's (inline resistance), as well as slightly changed preheat temps.
 
 The touchscreen feature is only available for AVR/LPC176X micro-controllers and
 it needs to be configured before compilation.
