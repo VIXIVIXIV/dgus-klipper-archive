@@ -103,8 +103,7 @@ gpio_adc_sample(struct gpio_adc g)
     LPC_ADC->ADCR = adc_status.adcr | (1 << g.chan) | (1<<16);
 
 need_delay:
-    uint32_t pclk = get_pclock_frequency(PCLK_ADC);
-    return ((64 * DIV_ROUND_UP(pclk, ADC_FREQ_MAX)
+    return ((64 * DIV_ROUND_UP(CONFIG_CLOCK_FREQ, ADC_FREQ_MAX)
              * ARRAY_SIZE(adc_status.samples)) / 4 + timer_from_us(10));
 }
 
