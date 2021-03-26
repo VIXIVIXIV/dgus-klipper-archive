@@ -86,7 +86,7 @@ uint32_t
 gpio_adc_sample(struct gpio_adc g)
 {
     uint32_t chan = adc_status.chan;
-    uint32_t pclk = get_pclock_frequency(PCLK_ADC);
+    //uint32_t pclk = get_pclock_frequency(PCLK_ADC);
     if (chan == g.chan) {
         // Sample already underway - check if it is ready
         if (adc_status.pos >= ARRAY_SIZE(adc_status.samples))
@@ -103,7 +103,8 @@ gpio_adc_sample(struct gpio_adc g)
     adc_status.chan = g.chan;
     LPC_ADC->ADCR = adc_status.adcr | (1 << g.chan) | (1<<16);
 
-need_delay:
+need_delay: ;
+	uint32_t pclk = get_pclock_frequency(PCLK_ADC);
     return ((64 * DIV_ROUND_UP(pclk, ADC_FREQ_MAX)
              * ARRAY_SIZE(adc_status.samples)) / 4 + timer_from_us(10));
 }
