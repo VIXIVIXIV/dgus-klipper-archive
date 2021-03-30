@@ -1,8 +1,6 @@
 name: Upstream sync
 
 on:
-  schedule:
-    - cron: '* * * * *'
   workflow_dispatch:
 
 jobs:
